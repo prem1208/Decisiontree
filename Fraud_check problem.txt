@@ -1,0 +1,26 @@
+Use decision trees to prepare a model on fraud data 
+treating those who have taxable_income <= 30000 as "Risky" and others are "Good"
+
+fraud_check<- read.csv(file.choose())
+fraud_check$category[fraud_check$Taxable.Income<=30000]<- "Risky"
+fraud_check$category[fraud_check$Taxable.Income>30000]<- "Good"
+fraud_check$category<- factor(fraud_check$category)
+View(fraud_check)
+
+fraud_check_train<-fraud_check[1:450,]
+fraud_check_test<-fraud_check[451:600,]
+
+prop.table(table(fraud_check$category))
+prop.table(table(fraud_check_train$category))
+prop.table(table(fraud_check_test$category))
+
+library(C50)
+
+fraud_check_model<- C5.0(fraud_check_train[-7],fraud_check_train$category)
+summary(fraud_check_model)
+
+fraud_check_pred<- predict(fraud_check_model,fraud_check_test)
+summary(fraud_check_pred)
+
+library(gmodels)
+CrossTable(fraud_check_test$category,fraud_check_pred,prop.chisq = FALSE, dnn = c("Risky","Good"))
